@@ -4,10 +4,12 @@ const scrapper = async function (id) {
   let metaData;
   let url = `${process.env.URL}/${id[0]}%23${id[1]}/overview?playlist=competitive`;
 
-  let browser = await puppeteer.launch();
-  let page = await browser.newPage();
-
   try {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    let page = await browser.newPage();
+
     await page.goto(url, { waitUntil: 'networkidle2' });
 
     let data = await page.evaluate(() => {
@@ -74,11 +76,12 @@ const scrapper = async function (id) {
     });
 
     metaData = data;
+
+    await browser.close();
   } catch (e) {
     console.log(e.message);
   }
 
-  await browser.close();
   return metaData;
 };
 
